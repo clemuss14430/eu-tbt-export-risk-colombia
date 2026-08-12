@@ -1,6 +1,6 @@
 # eu-tbt-export-risk-colombia
 
-**Latent risk and regulatory persistence: European environmental TTCs and Colombia's manufacturing export vulnerability, 2019–2026.**
+**Latent risk and regulatory persistence: European environmental TBTs and Colombia's manufacturing export vulnerability, 2019–2026.**
 
 > Data pipeline and analysis scripts for the working paper by Carlos Iván Lemus Serna  
 > Universidad EAN · Semillero Inglomark · 2026
