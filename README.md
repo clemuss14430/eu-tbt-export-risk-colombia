@@ -1,9 +1,9 @@
 # eu-tbt-export-risk-colombia
 
-**Latent Risk and Regulatory Persistence: European Environmental TBTs as a Structural Threat to Colombian Manufacturing Exports, 2019–2026**
+**Latent risk and regulatory persistence: European environmental TTCs and Colombia's manufacturing export vulnerability, 2019–2026.**
 
 > Data pipeline and analysis scripts for the working paper by Carlos Iván Lemus Serna  
-> Universidad EAN · Semillero Inglomark / LEMON Research Group · 2026
+> Universidad EAN · Semillero Inglomark · 2026
 
 ---
 
@@ -112,7 +112,7 @@ If you use this repository or any of its scripts in your research, please cite a
 
 **Carlos Iván Lemus Serna**  
 International Business · Universidad EAN  
-Semillero Inglomark · LEMON Research Group  
+Semillero Inglomark
 Bogotá, Colombia
 
 ---
