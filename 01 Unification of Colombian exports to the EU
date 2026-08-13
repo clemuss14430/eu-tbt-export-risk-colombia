@@ -1,70 +1,102 @@
 import pandas as pd
 import glob
 
-# 1. Leer TODOS los archivos .xlsx dentro de la carpeta
-archivos = glob.glob("*.xlsx")
+# --------------------------------------------------
+# 1. LOAD ALL EXCEL FILES FROM THE FOLDER
+# --------------------------------------------------
+
+files = glob.glob("*.xlsx")
 
 dataframes = []
 
-for archivo in archivos:
-    print(f"Leyendo archivo: {archivo}")
-    
-    # Leer SIEMPRE la hoja "BD Exportaciones"
-    df = pd.read_excel(archivo, sheet_name="BD Exportaciones")
-    
+for file in files:
+    print(f"Reading file: {file}")
+
+    # Always read the "BD Exportaciones" worksheet
+    df = pd.read_excel(file, sheet_name="BD Exportaciones")
+
     dataframes.append(df)
 
-# 2. Unir todos los dataframes en uno solo
+# Combine all dataframes into a single dataset
 data = pd.concat(dataframes, ignore_index=True)
 
-print("Archivos combinados correctamente.")
-print(data.head())  # Muestra las primeras filas
-# --------------------
-# 3. FILTRO POR HS Y UE
-# --------------------
+print("Files successfully combined.")
+print(data.head())
 
-# Lista de tus 85 códigos HS
-codigos_hs = [
-3910,3918,3924,3926,4016,4409,4418,4419,4815,
-6301,6302,6303,6306,6909,6911,6912,7017,7321,7322,
-7323,7417,8208,8215,8403,8414,8416,8417,8418,8419,
-8422,8450,8451,8469,8470,8471,8472,8473,8476,8508,
-8509,8510,8515,8516,8517,8518,8519,8520,8521,8522,
-8523,8524,8525,8526,8527,8528,8529,8530,8531,8536,
-8544,8701,8702,8704,8705,8709,8716,8802,9001,9009,
-9027,9030,9032,9401,9403,9405,9501,9502,9503,9505,
-9506,9508,9608,9613,9618
+
+# --------------------------------------------------
+# 2. STANDARDIZE TEXT AND DATA TYPES
+# --------------------------------------------------
+
+# Ensure HS code is numeric
+data["Codigo partida"] = pd.to_numeric(
+    data["Codigo partida"],
+    errors="coerce"
+)
+
+# Standardize destination country names
+data["Pais destino"] = (
+    data["Pais destino"]
+    .astype(str)
+    .str.strip()
+    .str.title()
+)
+
+
+# --------------------------------------------------
+# 3. FILTER BY HS CODE AND EUROPEAN UNION DESTINATION
+# --------------------------------------------------
+
+# List of the 85 selected HS codes
+hs_codes = [
+    3910, 3918, 3924, 3926, 4016, 4409, 4418, 4419, 4815,
+    6301, 6302, 6303, 6306, 6909, 6911, 6912, 7017, 7321,
+    7322, 7323, 7417, 8208, 8215, 8403, 8414, 8416, 8417,
+    8418, 8419, 8422, 8450, 8451, 8469, 8470, 8471, 8472,
+    8473, 8476, 8508, 8509, 8510, 8515, 8516, 8517, 8518,
+    8519, 8520, 8521, 8522, 8523, 8524, 8525, 8526, 8527,
+    8528, 8529, 8530, 8531, 8536, 8544, 8701, 8702, 8704,
+    8705, 8709, 8716, 8802, 9001, 9009, 9027, 9030, 9032,
+    9401, 9403, 9405, 9501, 9502, 9503, 9505, 9506, 9508,
+    9608, 9613, 9618
 ]
 
-# Lista de países de la Unión Europea
-paises_ue = [
-    "Alemania","Austria","Bélgica","Bulgaria","Chipre","Croacia","Dinamarca","Eslovaquia",
-    "Eslovenia","España","Estonia","Finlandia","Francia","Grecia","Hungría","Irlanda",
-    "Italia","Letonia","Lituania","Luxemburgo","Malta","Países Bajos","Polonia",
-    "Portugal","República Checa","Rumanía","Suecia"
+# List of European Union countries
+eu_countries = [
+    "Alemania", "Austria", "Bélgica", "Bulgaria", "Chipre",
+    "Croacia", "Dinamarca", "Eslovaquia", "Eslovenia", "España",
+    "Estonia", "Finlandia", "Francia", "Grecia", "Hungría",
+    "Irlanda", "Italia", "Letonia", "Lituania", "Luxemburgo",
+    "Malta", "Países Bajos", "Polonia", "Portugal",
+    "República Checa", "Rumanía", "Suecia"
 ]
 
-# Asegurar que Codigo partida sea numérico
-data["Codigo partida"] = pd.to_numeric(data["Codigo partida"], errors="coerce")
 
-# FILTRO 1: Códigos HS
-filtro_hs = data[data["Codigo partida"].isin(codigos_hs)]
+# --------------------------------------------------
+# 4. APPLY FILTERS
+# --------------------------------------------------
 
-# FILTRO 2: Destino Unión Europea
-filtro_final = filtro_hs[filtro_hs["Pais destino"].isin(paises_ue)]
+# Filter by selected HS codes
+hs_filtered = data[data["Codigo partida"].isin(hs_codes)]
 
-print("Filas finales obtenidas:", len(filtro_final))
-print(filtro_final.head())
+# Filter by European Union destination
+final_data = hs_filtered[
+    hs_filtered["Pais destino"].isin(eu_countries)
+]
 
-# --------------------
-# 4. Exportar resultado
-# --------------------
-filtro_final.to_excel("exportaciones_HS_UE.xlsx", index=False)
-print("Archivo exportado como exportaciones_HS_UE.xlsx")
+print("Final number of rows:", len(final_data))
+print(final_data.head())
 
-# Estandarización de texto para evitar errores de mayúsculas/espacios
-data["Pais destino"] = data["Pais destino"].astype(str).str.strip().str.title() 
-# Esto convierte " ALEMANIA " o "alemania" -> "Alemania"
 
-# FILTRO 2: Destino Unión Europea
-filtro_final = filtro_hs[filtro_hs["Pais destino"].isin(paises_ue)]
+# --------------------------------------------------
+# 5. EXPORT FILTERED DATASET
+# --------------------------------------------------
+
+output_file = "exports_hs_eu.xlsx"
+
+final_data.to_excel(
+    output_file,
+    index=False
+)
+
+print(f"Filtered dataset exported as: {output_file}")is destino"].isin(paises_ue)]
