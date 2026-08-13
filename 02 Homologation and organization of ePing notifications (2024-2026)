@@ -1,179 +1,284 @@
-import pandas as pd 
+import pandas as pd
 import numpy as np
 import re
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 1. CARGA Y FILTRO INICIAL
+# 1. LOAD DATA AND APPLY INITIAL FILTER
 # ─────────────────────────────────────────────────────────────────────────────
-df_raw = pd.read_excel('Notifications (Jan 2024 - Today).xlsx')
 
-df = df_raw[
-    (df_raw['Notifying Member'] == 'European Union') &
-    (df_raw['Objectives'].str.contains('environment', case=False, na=False))
+raw_data = pd.read_excel("Notifications (Jan 2024 - Today).xlsx")
+
+df = raw_data[
+    (raw_data["Notifying Member"] == "European Union") &
+    (raw_data["Objectives"].str.contains("environment", case=False, na=False))
 ].copy()
 
-print(f"Notificaciones UE ambientales en bruto: {len(df)}")
+print(f"Raw EU environmental notifications: {len(df)}")
+
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 2. FUNCIÓN DE EXTRACCIÓN DE CÓDIGOS
+# 2. FUNCTION TO EXTRACT CODES
 # ─────────────────────────────────────────────────────────────────────────────
-def extraer_lista_codigos(texto):
-    if pd.isna(texto) or str(texto).strip().lower() in ('nan', 'none', '', '.'):
+
+def extract_code_list(text):
+    """
+    Extract numeric HS or ICS codes from a text field.
+    Returns a list of unique codes.
+    """
+
+    if pd.isna(text) or str(text).strip().lower() in (
+        "nan", "none", "", "."
+    ):
         return []
-    elementos = str(texto).split(';')
-    codigos = []
-    for item in elementos:
+
+    elements = str(text).split(";")
+    codes = []
+
+    for item in elements:
         item = item.strip()
-        match = re.search(r'(\d[\d\.]+)', item)
+        match = re.search(r"(\d[\d\.]+)", item)
+
         if match:
-            codigo = match.group(1).strip('.')
-            if codigo:
-                codigos.append(codigo)
-    return list(set(codigos))
+            code = match.group(1).strip(".")
 
-df['HS_Clean_List']  = df['HS code(s)'].apply(extraer_lista_codigos)
-df['ICS_Clean_List'] = df['ICS code(s)'].apply(extraer_lista_codigos)
+            if code:
+                codes.append(code)
+
+    return list(set(codes))
+
+
+df["HS_Clean_List"] = df["HS code(s)"].apply(extract_code_list)
+df["ICS_Clean_List"] = df["ICS code(s)"].apply(extract_code_list)
+
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 3. DICCIONARIO EXACTO (SOLO EL DEL EXCEL V4)
+# 3. EXACT MAPPING DICTIONARY
+#    ONLY THE MAPPINGS DEFINED IN EXCEL V4
 # ─────────────────────────────────────────────────────────────────────────────
+
 ics_to_hs = {
 
-    '07.080': '90',
+    "07.080": "90",
 
-    '11.120': '30',
-    '11.220': '30',
+    "11.120": "30",
+    "11.220": "30",
 
-    '13.020': 'ENV-General',
-    '13.030.30': 'ENV-General',
-    '13.040.50': 'ENV-General',
-    '13.220.10': 'ENV-General',
-    '13.220.20': 'ENV-General',
+    "13.020": "ENV-General",
+    "13.030.30": "ENV-General",
+    "13.040.50": "ENV-General",
+    "13.220.10": "ENV-General",
+    "13.220.20": "ENV-General",
 
-    '29.060.01': '85',
-    '29.220': '85',
-    '29.220.99': '85',
+    "29.060.01": "85",
+    "29.220": "85",
+    "29.220.99": "85",
 
-    '31.020': '85',
-    '33.060': '85',
+    "31.020": "85",
+    "33.060": "85",
 
-    '35.260': '84',
+    "35.260": "84",
 
-    '43.080': '87',
+    "43.080": "87",
 
-    '47.020.70': '90',
+    "47.020.70": "90",
 
-    '65.020.20': '01-24',
-    '65.020.30': '01-24',
-    '65.080': '01-24',
-    '65.100': '01-24',
-    '65.120': '01-24',
+    "65.020.20": "01-24",
+    "65.020.30": "01-24",
+    "65.080": "01-24",
+    "65.100": "01-24",
+    "65.120": "01-24",
 
-    '67': '16-24',
+    "67": "16-24",
 
-    '71.100': '28-38',
-    '71.100.70': '28-38',
-    '71.120': '28-38',
+    "71.100": "28-38",
+    "71.100.70": "28-38",
+    "71.120": "28-38",
 
-    '83.080': '39-40',
+    "83.080": "39-40",
 
-    '91': '68-70',
+    "91": "68-70",
 
-    '97': '94-96',
-    '97.220': '94-96',
+    "97": "94-96",
+    "97.220": "94-96",
 }
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 4. FUNCIÓN DE RESOLUCIÓN (SIN INFERENCIAS)
-# ─────────────────────────────────────────────────────────────────────────────
-def resolver_ics(ics_codigo):
-    ics_limpio = str(ics_codigo).strip()
-
-    if ics_limpio in ics_to_hs:
-        return ics_to_hs[ics_limpio]
-
-    return f'ICS_{ics_limpio}'
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 5. FUNCIÓN PARA LLAVE DESDE HS
+# 4. CODE RESOLUTION FUNCTION
+#    NO ADDITIONAL INFERENCES
 # ─────────────────────────────────────────────────────────────────────────────
-def llave_desde_hs(hs_codigo):
-    clean = str(hs_codigo).replace('.', '').strip()
-    if len(clean) <= 2:
-        return clean
+
+def resolve_ics(ics_code):
+    """
+    Resolve an ICS code using the predefined mapping dictionary.
+    Unmapped codes are preserved as ICS_xxx.
+    """
+
+    clean_ics = str(ics_code).strip()
+
+    if clean_ics in ics_to_hs:
+        return ics_to_hs[clean_ics]
+
+    return f"ICS_{clean_ics}"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 5. CREATE CROSS-MATCHING KEY FROM HS CODE
+# ─────────────────────────────────────────────────────────────────────────────
+
+def create_hs_key(hs_code):
+    """
+    Create the matching key used to link HS codes with the export dataset.
+    """
+
+    clean_code = str(hs_code).replace(".", "").strip()
+
+    if len(clean_code) <= 2:
+        return clean_code
     else:
-        return clean[:4] if len(clean) >= 4 else clean[:2]
+        return clean_code[:4] if len(clean_code) >= 4 else clean_code[:2]
+
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 6. EXPLOSIÓN DE FILAS
+# 6. EXPLODE ROWS
 # ─────────────────────────────────────────────────────────────────────────────
+
 rows = []
 
 for _, row in df.iterrows():
-    hs_list  = row['HS_Clean_List']
-    ics_list = row['ICS_Clean_List']
+
+    hs_list = row["HS_Clean_List"]
+    ics_list = row["ICS_Clean_List"]
 
     if not hs_list and not ics_list:
         continue
 
-    # Prioridad 1: HS
+    # Priority 1: HS codes
     if hs_list:
+
         for hs in hs_list:
+
             new_row = row.copy()
-            new_row['HS_Separado']  = hs
-            new_row['ICS_Separado'] = ''
-            new_row['Llave_Cruce']  = llave_desde_hs(hs)
+
+            new_row["HS_Separated"] = hs
+            new_row["ICS_Separated"] = ""
+            new_row["Cross_Match_Key"] = create_hs_key(hs)
+
             rows.append(new_row)
 
-    # Prioridad 2: ICS
+    # Priority 2: ICS codes
     else:
+
         for ics in ics_list:
+
             new_row = row.copy()
-            new_row['HS_Separado']  = ''
-            new_row['ICS_Separado'] = ics.strip()
-            new_row['Llave_Cruce']  = resolver_ics(ics)
+
+            new_row["HS_Separated"] = ""
+            new_row["ICS_Separated"] = ics.strip()
+            new_row["Cross_Match_Key"] = resolve_ics(ics)
+
             rows.append(new_row)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 7. DATAFRAME FINAL
-# ─────────────────────────────────────────────────────────────────────────────
-df_final = pd.DataFrame(rows)
 
-columnas_mantener = [
-    'Distribution date', 'Document symbol', 'Title', 'Description',
-    'Products covered', 'HS code(s)', 'HS_Separado',
-    'ICS code(s)', 'ICS_Separado',
-    'Objectives', 'Proposed date of adoption',
-    'Proposed date of entry into force',
-    'Link to notification(EN)', 'Llave_Cruce'
+# ─────────────────────────────────────────────────────────────────────────────
+# 7. CREATE FINAL DATAFRAME
+# ─────────────────────────────────────────────────────────────────────────────
+
+final_data = pd.DataFrame(rows)
+
+columns_to_keep = [
+    "Distribution date",
+    "Document symbol",
+    "Title",
+    "Description",
+    "Products covered",
+    "HS code(s)",
+    "HS_Separated",
+    "ICS code(s)",
+    "ICS_Separated",
+    "Objectives",
+    "Proposed date of adoption",
+    "Proposed date of entry into force",
+    "Link to notification(EN)",
+    "Cross_Match_Key"
 ]
 
-df_final = df_final[[c for c in columnas_mantener if c in df_final.columns]]
+final_data = final_data[
+    [column for column in columns_to_keep if column in final_data.columns]
+]
 
-df_final['HS_Separado']  = df_final['HS_Separado'].fillna('')
-df_final['ICS_Separado'] = df_final['ICS_Separado'].fillna('')
+final_data["HS_Separated"] = final_data["HS_Separated"].fillna("")
+final_data["ICS_Separated"] = final_data["ICS_Separated"].fillna("")
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 8. EXPORTACIÓN
-# ─────────────────────────────────────────────────────────────────────────────
-df_final.to_excel('Alertas_ePing_Limpias_V5.xlsx', index=False)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 9. REPORTE
+# 8. EXPORT CLEAN DATASET
 # ─────────────────────────────────────────────────────────────────────────────
-print(f"\nOriginal UE Ambiental:           {len(df)} notificaciones")
-print(f"Notificaciones conservadas:      {df_final['Document symbol'].nunique()}")
-print(f"Filas totales tras explosión:    {len(df_final)}")
 
-print(f"\nDistribución de Llave_Cruce:")
-print(df_final['Llave_Cruce'].value_counts().to_string())
+output_file = "Clean_ePing_Alerts_V5.xlsx"
 
-sin_mapear = df_final[df_final['Llave_Cruce'].str.startswith('ICS_', na=False)]
-print(f"\nFilas sin mapear (ICS_xxx):      {len(sin_mapear)}")
+final_data.to_excel(
+    output_file,
+    index=False
+)
 
-if len(sin_mapear) > 0:
-    print(sin_mapear[['Document symbol', 'ICS_Separado', 'Title']].to_string())
 
-env_count = len(df_final[df_final['Llave_Cruce'] == 'ENV-General'])
-print(f"\nFilas ENV-General:               {env_count}")
-print("Regulaciones de marco general sin partida HS específica.")
+# ─────────────────────────────────────────────────────────────────────────────
+# 9. GENERATE SUMMARY REPORT
+# ─────────────────────────────────────────────────────────────────────────────
+
+print(f"\nOriginal EU environmental notifications: {len(df)}")
+print(
+    f"Notifications retained:                 "
+    f"{final_data['Document symbol'].nunique()}"
+)
+print(
+    f"Total rows after expansion:              "
+    f"{len(final_data)}"
+)
+
+print("\nDistribution of Cross_Match_Key:")
+print(
+    final_data["Cross_Match_Key"]
+    .value_counts()
+    .to_string()
+)
+
+
+# Identify unmapped ICS codes
+unmapped = final_data[
+    final_data["Cross_Match_Key"].str.startswith(
+        "ICS_", na=False
+    )
+]
+
+print(
+    f"\nUnmapped rows (ICS_xxx):                 "
+    f"{len(unmapped)}"
+)
+
+if len(unmapped) > 0:
+
+    print(
+        unmapped[
+            ["Document symbol", "ICS_Separated", "Title"]
+        ].to_string()
+    )
+
+
+# Count general environmental framework regulations
+environmental_general_count = len(
+    final_data[
+        final_data["Cross_Match_Key"] == "ENV-General"
+    ]
+)
+
+print(
+    f"\nENV-General rows:                        "
+    f"{environmental_general_count}"
+)
+
+print(
+    "General framework regulations without "
+    "a specific HS heading."
+)
