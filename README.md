@@ -219,7 +219,7 @@ If you use this repository, the master file, or any of its scripts in your resea
 > Lemus Serna, C. I. (2026). *eu-tbt-export-risk-colombia* [Source code repository]. GitHub. https://github.com/clemuss14430/eu-tbt-export-risk-colombia
 
 **Dashboard:**
-> Lemus, C. (2026). Latent Risk and Regulatory Persistence: OTC-ePing Trade Intelligence Dashboard for Colombian Manufacturing Exports to the European Union [Interactive Dashboard, Microsoft Power BI]. Universidad EAN. * [Interactive dashboard, Microsoft Power BI]. Universidad EAN. https://app.powerbi.com/view?r=eyJrIjoiNDkzZGVlYjMtZjZiNi00ODFmLWE4MDEtMzRhMmRlODRlMTk3IiwidCI6ImMwNmZiNTU5LTFiNjgtNGI4NC1hMTRmLTQ3ZDBkODM3YTVhYiIsImMiOjR9&pageName=3f6bdce00eefc57e3076
+> Lemus, C. (2026). Latent Risk and Regulatory Persistence: OTC-ePing Trade Intelligence Dashboard for Colombian Manufacturing Exports to the European Union [Interactive Dashboard, Microsoft Power BI]. Universidad EAN. * https://app.powerbi.com/view?r=eyJrIjoiNDkzZGVlYjMtZjZiNi00ODFmLWE4MDEtMzRhMmRlODRlMTk3IiwidCI6ImMwNmZiNTU5LTFiNjgtNGI4NC1hMTRmLTQ3ZDBkODM3YTVhYiIsImMiOjR9&pageName=3f6bdce00eefc57e3076
 
 **Working paper:**
 > Lemus Serna, C. I. (2026). Latent Risk and Regulatory Persistence: European Environmental TBTs and Colombia’s Manufacturing Export Vulnerability, 2019-2026 *Working paper*. Universidad EAN, Semillero Inglomark.
