@@ -113,9 +113,9 @@ The file `Maestro_Riesgo_TBT_ePing.xlsx` contains two sheets.
 | Category | Condition | Score | Flag |
 |---|---|---|---|
 | **Extreme Risk** | Present in I-TIP **and** ePing | 4 | 🔴 |
-| **Chronic Risk** | Present in I-TIP only | 2 | 🟠 |
-| **Emerging Risk** | Present in ePing only | — | 🟡 |
-| **No Identified Risk** | Absent from both sources | — | ⚪ |
+| **Chronic Risk** | Present in I-TIP only | 3 | 🟠 |
+| **Emerging Risk** | Present in ePing only | 2 | 🟡 |
+| **No Identified Risk** | Absent from both sources | 1 | ⚪ |
 
 > In this dataset, all 72 active export lines show at least Chronic Risk. 59 (81.9%) are classified as Extreme Risk.
 
@@ -219,10 +219,10 @@ If you use this repository, the master file, or any of its scripts in your resea
 > Lemus Serna, C. I. (2026). *eu-tbt-export-risk-colombia* [Source code repository]. GitHub. https://github.com/clemuss14430/eu-tbt-export-risk-colombia
 
 **Dashboard:**
-> Lemus Serna, C. I. (2026). *Riesgo latente y persistencia regulatoria: Dashboard de inteligencia comercial OTC-ePing para exportaciones manufactureras colombianas hacia la Unión Europea* [Interactive dashboard, Microsoft Power BI]. Universidad EAN. https://app.powerbi.com/view?r=eyJrIjoiNDkzZGVlYjMtZjZiNi00ODFmLWE4MDEtMzRhMmRlODRlMTk3IiwidCI6ImMwNmZiNTU5LTFiNjgtNGI4NC1hMTRmLTQ3ZDBkODM3YTVhYiIsImMiOjR9&pageName=3f6bdce00eefc57e3076
+> Lemus, C. (2026). Latent Risk and Regulatory Persistence: OTC-ePing Trade Intelligence Dashboard for Colombian Manufacturing Exports to the European Union [Interactive Dashboard, Microsoft Power BI]. Universidad EAN. * [Interactive dashboard, Microsoft Power BI]. Universidad EAN. https://app.powerbi.com/view?r=eyJrIjoiNDkzZGVlYjMtZjZiNi00ODFmLWE4MDEtMzRhMmRlODRlMTk3IiwidCI6ImMwNmZiNTU5LTFiNjgtNGI4NC1hMTRmLTQ3ZDBkODM3YTVhYiIsImMiOjR9&pageName=3f6bdce00eefc57e3076
 
 **Working paper:**
-> Lemus Serna, C. I. (2026). Riesgo latente y persistencia regulatoria: OTC ambientales europeos y la vulnerabilidad exportadora manufacturera de Colombia, 2019–2026. *Working paper*. Universidad EAN, Semillero Inglomark.
+> Lemus Serna, C. I. (2026). Latent Risk and Regulatory Persistence: European Environmental TBTs and Colombia’s Manufacturing Export Vulnerability, 2019-2026 *Working paper*. Universidad EAN, Semillero Inglomark.
 
 ---
 
